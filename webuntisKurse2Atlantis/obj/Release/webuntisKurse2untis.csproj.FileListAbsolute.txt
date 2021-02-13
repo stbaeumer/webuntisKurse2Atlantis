@@ -1,0 +1,11 @@
+\\FS01\bm\Source\Repos\webuntiskurse2untis\webuntisKurse2untis\bin\Release\webuntisKurse2untis.exe.config
+\\FS01\bm\Source\Repos\webuntiskurse2untis\webuntisKurse2untis\bin\Release\webuntisKurse2untis.exe
+\\FS01\bm\Source\Repos\webuntiskurse2untis\webuntisKurse2untis\bin\Release\webuntisKurse2untis.pdb
+\\FS01\bm\Source\Repos\webuntiskurse2untis\webuntisKurse2untis\obj\Release\webuntisKurse2untis.exe
+\\FS01\bm\Source\Repos\webuntiskurse2untis\webuntisKurse2untis\obj\Release\webuntisKurse2untis.pdb
+\\FS01\Schulverwaltung\webuntisKurse2untis\webuntisKurse2untis.exe.config
+\\FS01\Schulverwaltung\webuntisKurse2untis\webuntisKurse2untis.exe
+\\FS01\Schulverwaltung\webuntisKurse2untis\webuntisKurse2untis.pdb
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\obj\Release\webuntisKurse2untis.exe
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\obj\Release\webuntisKurse2untis.pdb
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\obj\Release\webuntisKurse2untis.csprojResolveAssemblyReference.cache

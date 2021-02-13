@@ -1,0 +1,9 @@
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\bin\Debug\webuntisKurse2untis.exe.config
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\bin\Debug\webuntisKurse2untis.exe
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\bin\Debug\webuntisKurse2untis.pdb
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\obj\Debug\webuntisKurse2untis.exe
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\obj\Debug\webuntisKurse2untis.pdb
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\obj\Debug\webuntisKurse2untis.csprojAssemblyReference.cache
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\obj\Debug\webuntisKurse2untis.Properties.Resources.resources
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\obj\Debug\webuntisKurse2untis.csproj.GenerateResource.cache
+U:\Source\Repos\webuntisKurse2untis\webuntisKurse2untis\obj\Debug\webuntisKurse2untis.csproj.CoreCompileInputs.cache
