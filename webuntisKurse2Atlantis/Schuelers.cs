@@ -1,4 +1,4 @@
-﻿
+﻿// Pubished und the terms of GPL3 by Stefan Bäumer 2021
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -10,10 +10,13 @@ namespace webuntisKurse2Atlantis
     {
         public Schuelers(string connectionStringAtlantis, string aktSj)
         {
-            using (OdbcConnection connection = new OdbcConnection(connectionStringAtlantis))
+            Console.Write("Schüler aus Atlantis ".PadRight(30, '.'));
+            try
             {
-                DataSet dataSet = new DataSet();
-                OdbcDataAdapter schuelerAdapter = new OdbcDataAdapter(@"SELECT 
+                using (OdbcConnection connection = new OdbcConnection(connectionStringAtlantis))
+                {
+                    DataSet dataSet = new DataSet();
+                    OdbcDataAdapter schuelerAdapter = new OdbcDataAdapter(@"SELECT 
 DBA.schue_sj.pu_id,
 DBA.schue_sj.pj_id,
 DBA.schue_sj.s_jahrgang,
@@ -47,27 +50,35 @@ DBA.adresse.s_famstand_adr
 FROM((DBA.schue_sj JOIN DBA.klasse ON DBA.schue_sj.kl_id = DBA.klasse.kl_id) JOIN DBA.schueler ON DBA.schue_sj.pu_id = DBA.schueler.pu_id) JOIN DBA.adresse ON DBA.schueler.pu_id = DBA.adresse.pu_id
 WHERE vorgang_schuljahr = '" + aktSj + @"';", connection);
 
-                connection.Open();
-                schuelerAdapter.Fill(dataSet, "DBA.klasse");
+                    connection.Open();
+                    schuelerAdapter.Fill(dataSet, "DBA.klasse");
 
-                foreach (DataRow theRow in dataSet.Tables["DBA.klasse"].Rows)
-                {
-                    try
+                    foreach (DataRow theRow in dataSet.Tables["DBA.klasse"].Rows)
                     {
-                        Schueler schueler = new Schueler();
-                        schueler.IdAtlantis = theRow["pu_id"] == null ? -99 : Convert.ToInt32(theRow["pu_id"]);
-                        schueler.IdAtlantisSchuljahr = theRow["pj_id"] == null ? -99 : Convert.ToInt32(theRow["pj_id"]);
-                        schueler.Jahrgang = theRow["s_jahrgang"] == null ? "" : theRow["s_jahrgang"].ToString();
-                        schueler.Nachname = theRow["name_1"] == null ? "" : theRow["name_1"].ToString();
-                        schueler.Vorname = theRow["name_2"] == null ? "" : theRow["name_2"].ToString();
-                        this.Add(schueler);
+                        try
+                        {
+                            Schueler schueler = new Schueler();
+                            schueler.IdAtlantis = theRow["pu_id"] == null ? -99 : Convert.ToInt32(theRow["pu_id"]);
+                            schueler.IdAtlantisSchuljahr = theRow["pj_id"] == null ? -99 : Convert.ToInt32(theRow["pj_id"]);
+                            schueler.Jahrgang = theRow["s_jahrgang"] == null ? "" : theRow["s_jahrgang"].ToString();
+                            schueler.Nachname = theRow["name_1"] == null ? "" : theRow["name_1"].ToString();
+                            schueler.Vorname = theRow["name_2"] == null ? "" : theRow["name_2"].ToString();
+                            this.Add(schueler);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                    }
+                    connection.Close();
                 }
-                connection.Close();
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            
+            Console.WriteLine((" " + this.Count.ToString()).PadLeft(30, '.'));
         }
     }
 }

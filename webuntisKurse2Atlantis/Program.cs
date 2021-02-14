@@ -1,12 +1,10 @@
-﻿using System;
+﻿// Pubished und the terms of GPL3 by Stefan Bäumer 2021
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace webuntisKurse2Atlantis
 {
@@ -27,82 +25,104 @@ namespace webuntisKurse2Atlantis
 
         static void Main(string[] args)
         {
-            Console.WriteLine(" WebuntisKurse2Atlantis | Published under the terms of GPLv3 | Stefan Bäumer " + DateTime.Now.Year + " | Version 20210208");
-            Console.WriteLine("=====================================================================================================");
-            Console.WriteLine(" *WebuntisKurse2Atlantis* erstellt eine SQL-Datei mit entsprechenden Befehlen zum Import in Atlantis.");
-            Console.WriteLine("=====================================================================================================");
+            try
+            {
+                Console.WriteLine(" WebuntisKurse2Atlantis | Published under the terms of GPLv3 | Stefan Bäumer " + DateTime.Now.Year + " | Version 20210208");
+                Console.WriteLine("=====================================================================================================");
+                Console.WriteLine(" Mit *WebuntisKurse2Atlantis* kann eine SQL-Datei erstellt werden, die die Befehle für die Neuanlage,");
+                Console.WriteLine(" ein Update oder das Löschen von Kursen und Kursteilnehmern enthält. Die Datei kann dann in Atlantis ");
+                Console.WriteLine(" unter *Funktionen/SQL-Anweisung ausführen* in Atlantis in die Datenbank geschrieben werden.         ");
+                Console.WriteLine("=====================================================================================================");
+                Console.WriteLine("");
+                Global.Output = new List<string>();
+                string targetPath = SetTargetPath();
 
-            Global.Output = new List<string>();
-            string targetPath = SetTargetPath();
+                string studentgroupStudents = CheckFile(targetPath, User, "StudentgroupStudents");
+                string targetSql = Path.Combine(targetPath, Zeitstempel + "_webuntiskurse2atlantis_" + User + ".SQL");
 
-            string studentgroupStudents = CheckFile(targetPath, User, "StudentgroupStudents");
-            //string exportLessons = CheckFile(targetPath, User, "ExportLessons");
-            string targetSql = Path.Combine(targetPath, Zeitstempel + "_webuntiskurse2atlantis_" + User + ".SQL");
+                Console.WriteLine("Aktuelles Schuljahr: " + AktSj[0] + "/" + AktSj[1]);
+                Console.WriteLine("Aktuelles Halbjahr:  " + aktuellesHalbjahr[0].ToShortDateString() + "-" + aktuellesHalbjahr[1].ToShortDateString());
+                Console.WriteLine("");
+                Studentgroups webuntisStudentgroups = new Studentgroups(studentgroupStudents, aktuellesHalbjahr);
 
-            Studentgroups webuntisStudentgroups = new Studentgroups(studentgroupStudents, aktuellesHalbjahr);
-            //ExportLessons exportlessons = new ExportLessons(exportLessons);
+                Klassen atlantisKlassen = new Klassen(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1]);
+                Schuelers schuelers = new Schuelers(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1]);
+                Fachs fachs = new Fachs(@"Dsn=Atlantis9;uid=DBA");
+                Kurse webuntisKurse = new Kurse(webuntisStudentgroups, schuelers, fachs, AktSj[0] + "/" + AktSj[1]);
+                Kursteilnehmers webuntiskursteilnehmers = new Kursteilnehmers(webuntisStudentgroups, schuelers);
 
-            Klassen atlantisKlassen = new Klassen(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1]);
-            Schuelers schuelers = new Schuelers(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1]);
-            Fachs fachs = new Fachs(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1]);
-            Kurse webuntisKurse = new Kurse(webuntisStudentgroups, schuelers, fachs, AktSj[0] + "/" + AktSj[1]);
-            Kursteilnehmers webuntiskursteilnehmers = new Kursteilnehmers(webuntisStudentgroups, schuelers);
+                Kurse atlantisKurse = new Kurse(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1]);
+                Kursteilnehmers atlantisKursteilnehmer = new Kursteilnehmers(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1], schuelers, aktuellesHalbjahr);
 
-            Kurse atlantisKurse = new Kurse(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1]);
-            Kursteilnehmers atlantisKursteilnehmer = new Kursteilnehmers(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1], schuelers, aktuellesHalbjahr);
-
-            // Sortieren
+                // Sortieren
 
 
-            atlantisKurse.OrderBy(x => x.Jahrgang).ThenBy(x => x.Kurstitel);
+                atlantisKurse.OrderBy(x => x.Jahrgang).ThenBy(x => x.Kurstitel);
 
-            // CRUD
+                // CRUD
 
-            webuntisKurse.Add(atlantisKurse);
-            atlantisKurse.Delete(webuntisKurse);
+                webuntisKurse.Add(atlantisKurse);
+                atlantisKurse.Delete(webuntisKurse);
 
-            webuntiskursteilnehmers.Add(atlantisKursteilnehmer, atlantisKurse);
-            webuntiskursteilnehmers.Update(atlantisKursteilnehmer, atlantisKurse);
-            atlantisKursteilnehmer.Delete(webuntiskursteilnehmers);
+                webuntiskursteilnehmers.Add(atlantisKursteilnehmer, atlantisKurse, aktuellesHalbjahr);
+                webuntiskursteilnehmers.Update(atlantisKursteilnehmer, atlantisKurse);
+                atlantisKursteilnehmer.Delete(webuntiskursteilnehmers);
 
-            ErzeugeSqlDatei(new List<string>() { studentgroupStudents, targetSql });
+                ErzeugeSqlDatei(new List<string>() { studentgroupStudents, targetSql });
 
-            //Console.ReadKey();
+                Console.WriteLine("");
+                Console.WriteLine("Verarbeitung beendet. ENTER beendet das Programm");
+                Console.ReadKey();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }            
         }
 
         private static string SetTargetPath()
         {
             var pfad = @"\\fs01\SoftwarehausHeider\webuntisKurse2Atlantis\Dateien";
 
-            if (Properties.Settings.Default.Pfad != "")
+            try
             {
-                pfad = Properties.Settings.Default.Pfad;
-            }
-
-            if (!Directory.Exists(pfad))
-            {
-                do
+                if (Properties.Settings.Default.Pfad != "")
                 {
-                    Console.WriteLine(" Wo sollen die Dateien gespeichert werden? [ " + pfad + " ]");
-                    pfad = Console.ReadLine();
-                    if (pfad == "")
-                    {
-                        pfad = @"\\fs01\SoftwarehausHeider\webuntisNoten2Atlantis\Dateien";
-                    }
-                    try
-                    {
-                        Directory.CreateDirectory(pfad);
-                        Properties.Settings.Default.Pfad = pfad;
-                    }
-                    catch (Exception)
-                    {
+                    pfad = Properties.Settings.Default.Pfad;
+                }
 
-                        Console.WriteLine("Der Pfad " + pfad + " kann nicht angelegt werden.");
-                    }
+                if (!Directory.Exists(pfad))
+                {
+                    do
+                    {
+                        Console.WriteLine(" Wo sollen die Dateien gespeichert werden? [ " + pfad + " ]");
+                        pfad = Console.ReadLine();
+                        if (pfad == "")
+                        {
+                            pfad = @"\\fs01\SoftwarehausHeider\webuntisNoten2Atlantis\Dateien";
+                        }
+                        try
+                        {
+                            Directory.CreateDirectory(pfad);
+                            Properties.Settings.Default.Pfad = pfad;
+                        }
+                        catch (Exception)
+                        {
 
-                } while (!Directory.Exists(pfad));
+                            Console.WriteLine("Der Pfad " + pfad + " kann nicht angelegt werden.");
+                        }
+
+                    } while (!Directory.Exists(pfad));
+                }
+
+                Console.WriteLine("Alle Dateien werden unter " + pfad + " abgelegt.");
+
             }
-
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+            
             return pfad;
         }
 
@@ -146,6 +166,7 @@ namespace webuntisKurse2Atlantis
                 File.Delete(targetFile);
             }
             File.Copy(sourceFile, targetFile);
+            
             return Path.Combine(targetFile);
         }
 

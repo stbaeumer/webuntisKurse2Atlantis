@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Pubished und the terms of GPL3 by Stefan Bäumer 2021
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Odbc;
@@ -8,16 +9,19 @@ namespace webuntisKurse2Atlantis
 {
     internal class Fachs : List<Fach>
     {
-        public Fachs(string connectionstring, string aktSj)
+        public Fachs(string connectionstring)
         {
-            using (OdbcConnection connection = new OdbcConnection(connectionstring))
+            Console.Write("Fächer aus Webuntis ".PadRight(30, '.'));
+            
+            try
             {
-                try
+                using (OdbcConnection connection = new OdbcConnection(connectionstring))
                 {
+
                     DataSet dataSet = new DataSet();
                     OdbcDataAdapter schuelerAdapter = new OdbcDataAdapter(@"SELECT DBA.fach.fa_id,
 DBA.fach.kuerzel,
-DBA.fach_info.bezeichnung_1
+DBA.fach_info.bezeichnung_1 AS Untisname
 FROM DBA.fach LEFT OUTER JOIN DBA.fach_info ON DBA.fach.fa_id = DBA.fach_info.fa_id
 WHERE aktiv_jn = 'j'
 ORDER BY DBA.fach.kuerzel ASC ", connection);
@@ -36,11 +40,11 @@ ORDER BY DBA.fach.kuerzel ASC ", connection);
 
                         if (!(from f in this where f.Kürzel == fach.Kürzel select f).Any())
                         {
-                            if (theRow["bezeichnung_1"].ToString() != null && theRow["bezeichnung_1"].ToString() != "")
+                            if (theRow["Untisname"].ToString() != null && theRow["Untisname"].ToString() != "")
                             {
-                                fach.UntisNamen.Add(theRow["bezeichnung_1"].ToString());
+                                fach.UntisNamen.Add(theRow["Untisname"].ToString());
                             }
-                            
+
                             fach.UntisNamen.Add(theRow["kuerzel"].ToString());
                             this.Add(fach);
                         }
@@ -48,22 +52,24 @@ ORDER BY DBA.fach.kuerzel ASC ", connection);
                         {
                             var x = (from f in this where f.Kürzel == fach.Kürzel select f).FirstOrDefault();
 
-                            if (theRow["bezeichnung_1"].ToString() != null && theRow["bezeichnung_1"].ToString() != "")
+                            if (theRow["Untisname"].ToString() != null && theRow["Untisname"].ToString() != "")
                             {
-                                if (!x.UntisNamen.Contains(theRow["bezeichnung_1"].ToString()))
+                                if (!x.UntisNamen.Contains(theRow["Untisname"].ToString()))
                                 {
-                                    x.UntisNamen.Add(theRow["bezeichnung_1"].ToString());
+                                    x.UntisNamen.Add(theRow["Untisname"].ToString());
                                 }
-                            }                            
+                            }
                         }
                     }
                     connection.Close();
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());                    
-                }
+            }    
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
             }
+
+            Console.WriteLine((" " + this.Count.ToString()).PadLeft(30, '.'));
         }
     }
 }

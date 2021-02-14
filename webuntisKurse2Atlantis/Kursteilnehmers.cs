@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Pubished und the terms of GPL3 by Stefan Bäumer 2021
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Odbc;
@@ -10,6 +11,8 @@ namespace webuntisKurse2Atlantis
     {
         public Kursteilnehmers(Studentgroups webuntisStudentgroups, Schuelers schuelers)
         {
+            Console.Write("Kursteilnehmer aus Webuntis ".PadRight(30, '.'));
+
             foreach (var w in webuntisStudentgroups)
             {
                 Kursteilnehmer kursteilnehmer = new Kursteilnehmer();
@@ -22,10 +25,14 @@ namespace webuntisKurse2Atlantis
                 kursteilnehmer.Enddate = w.EndDate;
                 this.Add(kursteilnehmer);
             }
+
+            Console.WriteLine((" " + this.Count.ToString()).PadLeft(30, '.'));
         }
 
         public Kursteilnehmers(string connectionStringAtlantis, string aktSj, Schuelers schuelers, List<DateTime> aktuellesHalbjahr)
         {
+            Console.Write("Kursteilneher aus Atlantis ".PadRight(30, '.'));
+
             using (OdbcConnection connection = new OdbcConnection(connectionStringAtlantis))
             {
                 DataSet dataSet = new DataSet();
@@ -67,10 +74,11 @@ WHERE programm_nr = '" + aktSj + "'", connection);
                 }
                 connection.Close();
             }
+            Console.WriteLine((" " + this.Count.ToString()).PadLeft(30, '.'));
         }
                
 
-        internal void Add(Kursteilnehmers atlantisKursteilnehmer, Kurse atlantisKurse)
+        internal void Add(Kursteilnehmers atlantisKursteilnehmer, Kurse atlantisKurse, List<DateTime> aktuellesHalbjahr)
         {
             UpdateKursteilnehmer("", "");
             UpdateKursteilnehmer("Anzulegende Kursteilnehmer:", "");
@@ -85,7 +93,7 @@ WHERE programm_nr = '" + aktSj + "'", connection);
                 {
                     if (!(from a in atlantisKursteilnehmer where a.Pj_Id == w.Pj_Id where a.Ku_Id == ku_id select a).Any())
                     {
-                        UpdateKursteilnehmer(w.KursNameUntis + "|" + w.Nachname + "," + w.Vorname, @"INSERT INTO ku_pj(ku_id, pj_id,datum,datum_2) VALUES(" + ku_id + "," + w.Pj_Id + ",'" + w.Startdate.ToString("yyyy-MM-dd") + "'," + (w.Enddate <= DateTime.Now ? "'" + w.Enddate.ToString("yyyy-MM-dd") + "'" : "NULL" ) + ");");
+                        UpdateKursteilnehmer(w.KursNameUntis + "|" + w.Nachname + "," + w.Vorname, @"INSERT INTO ku_pj(ku_id, pj_id,datum,datum_2) VALUES(" + ku_id + "," + w.Pj_Id + "," + (w.Startdate == aktuellesHalbjahr[0] ? "NULL" : "'" + w.Startdate.ToString("yyyy-MM-dd") + "'") + "," + (w.Enddate <= DateTime.Now ? "'" + w.Enddate.ToString("yyyy-MM-dd") + "'" : "NULL" ) + ");");
                     }
                 }
             }
