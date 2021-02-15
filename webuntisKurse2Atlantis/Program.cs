@@ -49,15 +49,20 @@ namespace webuntisKurse2Atlantis
                 Schuelers schuelers = new Schuelers(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1]);
                 Fachs fachs = new Fachs(@"Dsn=Atlantis9;uid=DBA");
                 Kurse webuntisKurse = new Kurse(webuntisStudentgroups, schuelers, fachs, AktSj[0] + "/" + AktSj[1]);
-                Kursteilnehmers webuntiskursteilnehmers = new Kursteilnehmers(webuntisStudentgroups, schuelers);
+                Kursteilnehmers webuntiskursteilnehmers = new Kursteilnehmers(webuntisStudentgroups, schuelers, aktuellesHalbjahr);
 
                 Kurse atlantisKurse = new Kurse(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1]);
                 Kursteilnehmers atlantisKursteilnehmer = new Kursteilnehmers(@"Dsn=Atlantis9;uid=DBA", AktSj[0] + "/" + AktSj[1], schuelers, aktuellesHalbjahr);
 
                 // Sortieren
 
-
                 atlantisKurse.OrderBy(x => x.Jahrgang).ThenBy(x => x.Kurstitel);
+
+                // Filtern
+
+                List<Kurs> wf = (from a in webuntisKurse where a.Art == "G" || a.Art == "L" select a).ToList();
+                webuntisKurse = new Kurse();
+                webuntisKurse.AddRange(wf);
 
                 // CRUD
 
@@ -65,7 +70,7 @@ namespace webuntisKurse2Atlantis
                 atlantisKurse.Delete(webuntisKurse);
 
                 webuntiskursteilnehmers.Add(atlantisKursteilnehmer, atlantisKurse, aktuellesHalbjahr);
-                webuntiskursteilnehmers.Update(atlantisKursteilnehmer, atlantisKurse);
+                webuntiskursteilnehmers.Update(atlantisKursteilnehmer, atlantisKurse, aktuellesHalbjahr);
                 atlantisKursteilnehmer.Delete(webuntiskursteilnehmers);
 
                 ErzeugeSqlDatei(new List<string>() { studentgroupStudents, targetSql });
@@ -77,6 +82,7 @@ namespace webuntisKurse2Atlantis
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
+                Console.ReadKey();
             }            
         }
 

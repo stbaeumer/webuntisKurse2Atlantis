@@ -1,0 +1,9 @@
+\\FS01\Schulverwaltung\webuntisKurse2Atlantis\webuntisKurse2Atlantis.exe.config
+\\FS01\Schulverwaltung\webuntisKurse2Atlantis\webuntisKurse2Atlantis.exe
+\\FS01\Schulverwaltung\webuntisKurse2Atlantis\webuntisKurse2Atlantis.pdb
+U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.Properties.Resources.resources
+U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.csproj.GenerateResource.cache
+U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.csproj.CoreCompileInputs.cache
+U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.exe
+U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.pdb
+U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.csprojAssemblyReference.cache

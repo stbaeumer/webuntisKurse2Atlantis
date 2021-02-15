@@ -10,9 +10,9 @@ U:\Source\Repos\webuntisKurse2untis\webuntisKurse2Atlantis\obj\Debug\webuntisKur
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\bin\Debug\webuntisKurse2Atlantis.exe.config
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\bin\Debug\webuntisKurse2Atlantis.exe
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\bin\Debug\webuntisKurse2Atlantis.pdb
-U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Debug\webuntisKurse2Atlantis.csprojAssemblyReference.cache
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Debug\webuntisKurse2Atlantis.Properties.Resources.resources
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Debug\webuntisKurse2Atlantis.csproj.GenerateResource.cache
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Debug\webuntisKurse2Atlantis.csproj.CoreCompileInputs.cache
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Debug\webuntisKurse2Atlantis.exe
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Debug\webuntisKurse2Atlantis.pdb
+U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Debug\webuntisKurse2Atlantis.csprojAssemblyReference.cache
