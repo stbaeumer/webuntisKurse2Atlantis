@@ -24,13 +24,13 @@ namespace webuntisKurse2Atlantis
                 kursteilnehmer.Startdate = w.StartDate > aktuellesHalbjahr[0] ? w.StartDate : aktuellesHalbjahr[0];
                 kursteilnehmer.Enddate = w.EndDate < aktuellesHalbjahr[1] ? w.EndDate : aktuellesHalbjahr[1];
                 
-                if (kursteilnehmer.Enddate >= aktuellesHalbjahr[0])
+                if (kursteilnehmer.Startdate < aktuellesHalbjahr[1] && kursteilnehmer.Enddate >= aktuellesHalbjahr[0])
                 {
                     this.Add(kursteilnehmer);
                 }
                 else
                 {
-                    Console.WriteLine(kursteilnehmer.Nachname+","+kursteilnehmer.Vorname+"("+ kursteilnehmer.KursNameUntis +"): Das Enddatum liegt vor dem Halbjahresbeginn. Der Teilnehmer wird ignoriert.");
+                    //Console.WriteLine(kursteilnehmer.Nachname+","+kursteilnehmer.Vorname+"("+ kursteilnehmer.KursNameUntis +"): Das Enddatum liegt vor dem Halbjahresbeginn. Der Teilnehmer wird ignoriert.");
                 }
             }
 
@@ -73,7 +73,7 @@ WHERE programm_nr = '" + aktSj + "'", connection);
                         kursteilnehmer.Enddate = theRow["datum_2"].ToString().Length < 3 ? aktuellesHalbjahr[1] : DateTime.ParseExact(theRow["datum_2"].ToString(), "dd.MM.yyyy HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture);
                         kursteilnehmer.KursNameUntis = theRow["alias_name_1"] == null ? "" : theRow["alias_name_1"].ToString();
                         kursteilnehmer.Nachname = theRow["name_1"] == null ? "" : theRow["name_1"].ToString();
-                        kursteilnehmer.Vorname = theRow["name_2"] == null ? "" : theRow["name_2"].ToString();
+                        kursteilnehmer.Vorname = theRow["name_2"] == null ? "" : theRow["name_2"].ToString();                        
                         this.Add(kursteilnehmer);
                     }
                     catch (Exception ex)
@@ -101,7 +101,15 @@ WHERE programm_nr = '" + aktSj + "'", connection);
                 {
                     if (!(from a in atlantisKursteilnehmer where a.Pj_Id == w.Pj_Id where a.Ku_Id == ku_id select a).Any())
                     {
-                        UpdateKursteilnehmer(w.KursNameUntis + "|" + w.Nachname + "," + w.Vorname, @"INSERT INTO ku_pj(ku_id, pj_id,datum,datum_2) VALUES(" + ku_id + "," + w.Pj_Id + "," + (w.Startdate <= aktuellesHalbjahr[0] ? "NULL" : "'" + w.Startdate.ToString("yyyy-MM-dd") + "'") + "," + (w.Enddate > aktuellesHalbjahr[0] && w.Enddate < aktuellesHalbjahr[1] && w.Enddate <= DateTime.Now ? "'" + w.Enddate.ToString("yyyy-MM-dd") + "'" : "NULL" ) + ");");
+                        if (w.Enddate > aktuellesHalbjahr[0])
+                        {
+                            if (w.Enddate > w.Startdate)
+                            {
+                                UpdateKursteilnehmer(
+                                    w.KursNameUntis + "|" + w.Nachname + "," + w.Vorname, 
+                                    @"INSERT INTO ku_pj(ku_id, pj_id,datum,datum_2) VALUES(" + ku_id + "," + w.Pj_Id + "," + (w.Startdate <= aktuellesHalbjahr[0] ? "NULL" : "'" + w.Startdate.ToString("yyyy-MM-dd") + "'") + "," + (w.Enddate > aktuellesHalbjahr[0] && w.Enddate < aktuellesHalbjahr[1] ? "'" + w.Enddate.ToString("yyyy-MM-dd") + "'" : "NULL") + ");");
+                            }                            
+                        }                        
                     }
                 }
             }
@@ -124,15 +132,24 @@ WHERE programm_nr = '" + aktSj + "'", connection);
 
                     if (at != null)
                     {
-                        if (at.Startdate != w.Startdate)
+                        // Wenn die Starttermine abweichen oder wenn beide Termine gleich sind und das Atlantisdatum auf den ersten Tag des Halbjahres datiert, wird upgedatet
+
+                        if (at.Startdate != w.Startdate || at.Startdate == aktuellesHalbjahr[0])
                         {
                             var start = w.Startdate == aktuellesHalbjahr[0] ?"NULL" : "'" + w.Startdate.ToString("yyyy-MM-dd") + "'";
+                            var startstring = w.Startdate == aktuellesHalbjahr[0] ? "NULL" : w.Startdate.ToString("dd.MM.");
 
-                            UpdateKursteilnehmer(w.KursNameUntis.Substring(0,9) + "|" + w.Nachname.Substring(0, 3) + "," + w.Vorname.Substring(0, 3) + "|" + at.Startdate.ToString("dd.MM") + "->" + start, @"UPDATE ku_pj SET datum = " + start + " WHERE ku_id = " + ku_id + " AND pj_id = " + w.Pj_Id + ";");
+                            UpdateKursteilnehmer(
+                                w.KursNameUntis.Substring(0,9) + "|" + w.Nachname.Substring(0, Math.Min(w.Nachname.Length, 3)) + "," + w.Vorname.Substring(0, Math.Min(2, w.Vorname.Length)) + "|" + (at.Startdate != aktuellesHalbjahr[0] ? at.Startdate.ToString("dd.MM") : "Start") + "->" + startstring, 
+                                @"UPDATE ku_pj SET datum = " + start + " WHERE ku_id = " + ku_id + " AND pj_id = " + w.Pj_Id + ";"
+                                );
                         }
                         if (at.Enddate != w.Enddate)
                         {
-                            UpdateKursteilnehmer(w.KursNameUntis.Substring(0, 9) + "|" + w.Nachname.Substring(0, 3) + "," + w.Vorname.Substring(0, 3) + "|" + (at.Enddate <= DateTime.Now ? at.Enddate.ToString("dd.MM.") : "NULL") + "->" + w.Enddate.ToString("dd.MM."), @"UPDATE ku_pj SET datum_2 = " + (w.Enddate <= DateTime.Now ? "'" + w.Enddate.ToString("yyyy-MM-dd") + "'" : "NULL") + " WHERE ku_id = " + ku_id + " AND pj_id = " + w.Pj_Id + ";");
+                            UpdateKursteilnehmer(
+                                w.KursNameUntis.Substring(0, 9) + "|" + w.Nachname.Substring(0, Math.Min(3, w.Nachname.Length)) + "," + w.Vorname.Substring(0, Math.Min(2, w.Vorname.Length)) + "|" + (at.Enddate <= DateTime.Now ? at.Enddate.ToString("dd.MM.") : "NULL") + "->" + w.Enddate.ToString("dd.MM."), 
+                                @"UPDATE ku_pj SET datum_2 = " + (w.Enddate <= DateTime.Now ? "'" + w.Enddate.ToString("yyyy-MM-dd") + "'" : "NULL") + " WHERE ku_id = " + ku_id + " AND pj_id = " + w.Pj_Id + ";"
+                                );
                         }
                     }
                 }

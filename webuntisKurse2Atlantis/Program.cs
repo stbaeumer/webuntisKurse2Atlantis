@@ -60,6 +60,7 @@ namespace webuntisKurse2Atlantis
 
                 // Filtern
 
+                Console.WriteLine("Achtung, es wird ausschließlich auf Grund- und Leistungskurse in der gym. Oberstufe gefiltert.");
                 List<Kurs> wf = (from a in webuntisKurse where a.Art == "G" || a.Art == "L" select a).ToList();
                 webuntisKurse = new Kurse();
                 webuntisKurse.AddRange(wf);

@@ -54,6 +54,7 @@ namespace webuntisKurse2Atlantis
                         {
                             kurs.Art = kurs.Jahrgang.StartsWith("D") && kurs.IdFach != 0 && kurs.Fach.Contains(" ") ? (kurs.Fach.Replace("  ", " ")).Split(' ')[1].Substring(0, 1) : "";
                         }
+                        
                         unsortiert.Add(kurs);
                     }
                 }
