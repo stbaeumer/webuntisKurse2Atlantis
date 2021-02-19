@@ -11,6 +11,7 @@ namespace webuntisKurse2Atlantis
         public Studentgroups(string studentgroupStudents, List<DateTime> aktuellesHalbjahr)
         {
             Console.Write("Schülergruppen aus Webuntis ".PadRight(30, '.'));
+
             try
             {
                 using (StreamReader reader = new StreamReader(studentgroupStudents))
@@ -29,8 +30,8 @@ namespace webuntisKurse2Atlantis
                                 studentgroup.Forename = x[2];
                                 studentgroup.StudentgroupName = x[3];
                                 studentgroup.Subject = x[4];
-                                studentgroup.StartDate = x[5] == "" ? aktuellesHalbjahr[0] : DateTime.ParseExact(x[5], "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
-                                studentgroup.EndDate = x[6] == "" ? aktuellesHalbjahr[1] : DateTime.ParseExact(x[6], "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                                studentgroup.StartDate = x[5] == "" ? new DateTime() : DateTime.ParseExact(x[5], "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                                studentgroup.EndDate = x[6] == "" ? new DateTime() : DateTime.ParseExact(x[6], "dd.MM.yyyy", System.Globalization.CultureInfo.InvariantCulture);
                                 this.Add(studentgroup);
                             }
                         }
