@@ -6,3 +6,4 @@ U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webunt
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.csproj.CoreCompileInputs.cache
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.exe
 U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.pdb
+U:\Source\Repos\webuntisKurse2Atlantis\webuntisKurse2Atlantis\obj\Release\webuntisKurse2Atlantis.csprojAssemblyReference.cache

@@ -78,7 +78,7 @@ WHERE programm_nr = '" + aktSj + "'", connection);
         }
                
 
-        internal void Add(Kursteilnehmers atlantisKursteilnehmer, Kurse atlantisKurse, List<DateTime> aktuellesHalbjahr)
+        internal void Add(Kursteilnehmers atlantisKursteilnehmer, Kurse atlantisKurse, List<DateTime> aktuellesHalbjahr, List<int> zuLöschendeKurse)
         {
             UpdateKursteilnehmer("", "");
             UpdateKursteilnehmer("Anzulegende Kursteilnehmer:", "");
@@ -91,32 +91,37 @@ WHERE programm_nr = '" + aktSj + "'", connection);
 
                 if (ku_id != 0)
                 {
-                    if (!(from a in atlantisKursteilnehmer where a.Pj_Id == w.Pj_Id where a.Ku_Id == ku_id select a).Any())
+                    // In zu löschenden Kursen wird kein Schüler angelegt
+
+                    if (!zuLöschendeKurse.Contains(ku_id))
                     {
-                        // Wenn kein Starttermin gesetzt ist oder der Starttermin vor Halbjahresende liegt
-
-                        if (w.Startdate.Year == new DateTime().Year || w.Startdate < aktuellesHalbjahr[1])
+                        if (!(from a in atlantisKursteilnehmer where a.Pj_Id == w.Pj_Id where a.Ku_Id == ku_id select a).Any())
                         {
-                            // Wenn kein Endtermin gesetzt ist oder der Endtermin nach dem Halbjahresbeginn liegt
+                            // Wenn kein Starttermin gesetzt ist oder der Starttermin vor Halbjahresende liegt
 
-                            if (w.Enddate.Year == new DateTime().Year || w.Enddate > aktuellesHalbjahr[0])
+                            if (w.Startdate.Year == new DateTime().Year || w.Startdate < aktuellesHalbjahr[1])
                             {
-                                // Wenn der Endtermin nach dem Starttermin liegt oder kein Endtermin gesetzt ist
+                                // Wenn kein Endtermin gesetzt ist oder der Endtermin nach dem Halbjahresbeginn liegt
 
-                                if (w.Enddate > w.Startdate || w.Enddate.Year == new DateTime().Year)
+                                if (w.Enddate.Year == new DateTime().Year || w.Enddate > aktuellesHalbjahr[0])
                                 {
-                                    UpdateKursteilnehmer(
-                                        w.KursNameUntis + "|" + w.Nachname + "," + w.Vorname,
-                                        @"INSERT INTO ku_pj(ku_id, pj_id,datum,datum_2) VALUES(" + ku_id + "," + w.Pj_Id + "," + (w.Startdate <= aktuellesHalbjahr[0] ? "NULL" : "'" + w.Startdate.ToString("yyyy-MM-dd") + "'") + "," + (w.Enddate > aktuellesHalbjahr[0] && w.Enddate < aktuellesHalbjahr[1] ? "'" + w.Enddate.ToString("yyyy-MM-dd") + "'" : "NULL") + ");");
+                                    // Wenn der Endtermin nach dem Starttermin liegt oder kein Endtermin gesetzt ist
+
+                                    if (w.Enddate > w.Startdate || w.Enddate.Year == new DateTime().Year)
+                                    {
+                                        UpdateKursteilnehmer(
+                                            w.KursNameUntis + "|" + w.Nachname + "," + w.Vorname,
+                                            @"INSERT INTO ku_pj(ku_id, pj_id,datum,datum_2) VALUES(" + ku_id + "," + w.Pj_Id + "," + (w.Startdate <= aktuellesHalbjahr[0] ? "NULL" : "'" + w.Startdate.ToString("yyyy-MM-dd") + "'") + "," + (w.Enddate > aktuellesHalbjahr[0] && w.Enddate < aktuellesHalbjahr[1] ? "'" + w.Enddate.ToString("yyyy-MM-dd") + "'" : "NULL") + ");");
+                                    }
                                 }
                             }
-                        }                       
-                    }
+                        }
+                    }                    
                 }
             }
         }
 
-        internal void Update(Kursteilnehmers atlantisKursteilnehmer, Kurse atlantisKurse, List<DateTime> aktuellesHalbjahr)
+        internal void Update(Kursteilnehmers atlantisKursteilnehmer, Kurse atlantisKurse, List<DateTime> aktuellesHalbjahr, List<int> zuLöschendeKurse)
         {
             UpdateKursteilnehmer("", "");
             UpdateKursteilnehmer("Zu aktualisierende Kursteilnehmer:", "");
@@ -128,43 +133,48 @@ WHERE programm_nr = '" + aktSj + "'", connection);
 
                 if (ku_id != 0)
                 {
-                    var at = (from a in atlantisKursteilnehmer where a.Pj_Id == w.Pj_Id where a.Ku_Id == ku_id select a).FirstOrDefault();
+                    // In zu löschenden Kursen werden keine SuS upgedatet
 
-                    if (at != null)
+                    if (!zuLöschendeKurse.Contains(ku_id))
                     {
-                        // Wenn die Starttermine abweichen
+                        var at = (from a in atlantisKursteilnehmer where a.Pj_Id == w.Pj_Id where a.Ku_Id == ku_id select a).FirstOrDefault();
 
-                        if (at.Startdate != w.Startdate || at.Startdate < aktuellesHalbjahr[0])
+                        if (at != null)
                         {
-                            // Wenn in Atlantis kein Datum gesetzt ist, wird nur aktualisiert, wenn das neue Startdatum innerhalb des Halbjahres liegt.
+                            // Wenn die Starttermine abweichen
 
-                            if (at.Startdate.Year != new DateTime().Year && w.Startdate > aktuellesHalbjahr[0] && w.Startdate < aktuellesHalbjahr[1])
+                            if (at.Startdate != w.Startdate || at.Startdate < aktuellesHalbjahr[0])
                             {
-                                var start = w.Startdate.Year == new DateTime().Year || w.Startdate <= aktuellesHalbjahr[0] ? "NULL" : "'" + w.Startdate.ToString("yyyy-MM-dd") + "'";
-                                var startstring = w.Startdate.Year == new DateTime().Year || w.Startdate <= aktuellesHalbjahr[0] ? "NULL" : w.Startdate.ToString("dd.MM.");
+                                // Wenn in Atlantis kein Datum gesetzt ist, wird nur aktualisiert, wenn das neue Startdatum innerhalb des Halbjahres liegt.
+
+                                if (at.Startdate.Year != new DateTime().Year && w.Startdate > aktuellesHalbjahr[0] && w.Startdate < aktuellesHalbjahr[1])
+                                {
+                                    var start = w.Startdate.Year == new DateTime().Year || w.Startdate <= aktuellesHalbjahr[0] ? "NULL" : "'" + w.Startdate.ToString("yyyy-MM-dd") + "'";
+                                    var startstring = w.Startdate.Year == new DateTime().Year || w.Startdate <= aktuellesHalbjahr[0] ? "NULL" : w.Startdate.ToString("dd.MM.");
+
+                                    UpdateKursteilnehmer(
+                                        w.KursNameUntis.Substring(0, 9) + "|" + w.Nachname.Substring(0, Math.Min(w.Nachname.Length, 3)) + "," + w.Vorname.Substring(0, Math.Min(2, w.Vorname.Length)) + "|" + (at.Startdate.Year != new DateTime().Year ? at.Startdate.ToString("dd.MM") : "Start") + "->" + startstring,
+                                        @"UPDATE ku_pj SET datum = " + start + " WHERE ku_id = " + ku_id + " AND pj_id = " + w.Pj_Id + ";"
+                                        );
+                                }
+                            }
+                            if (at.Enddate != w.Enddate)
+                            {
+                                var ende = w.Enddate.Year == new DateTime().Year || w.Enddate >= aktuellesHalbjahr[1] ? "NULL" : "'" + w.Enddate.ToString("yyyy-MM-dd") + "'";
+                                var endestring = w.Enddate.Year == new DateTime().Year || w.Enddate >= aktuellesHalbjahr[1] ? "NULL" : w.Enddate.ToString("dd.MM.");
 
                                 UpdateKursteilnehmer(
-                                    w.KursNameUntis.Substring(0, 9) + "|" + w.Nachname.Substring(0, Math.Min(w.Nachname.Length, 3)) + "," + w.Vorname.Substring(0, Math.Min(2, w.Vorname.Length)) + "|" + (at.Startdate.Year != new DateTime().Year ? at.Startdate.ToString("dd.MM") : "Start") + "->" + startstring,
-                                    @"UPDATE ku_pj SET datum = " + start + " WHERE ku_id = " + ku_id + " AND pj_id = " + w.Pj_Id + ";"
+                                    w.KursNameUntis.Substring(0, 9) + "|" + w.Nachname.Substring(0, Math.Min(3, w.Nachname.Length)) + "," + w.Vorname.Substring(0, Math.Min(2, w.Vorname.Length)) + "|" + (at.Enddate <= DateTime.Now ? at.Enddate.ToString("dd.MM.") : "NULL") + "->" + endestring,
+                                    @"UPDATE ku_pj SET datum_2 = " + endestring + " WHERE ku_id = " + ku_id + " AND pj_id = " + w.Pj_Id + ";"
                                     );
                             }
                         }
-                        if (at.Enddate != w.Enddate)
-                        {
-                            var ende = w.Enddate.Year == new DateTime().Year || w.Enddate >= aktuellesHalbjahr[1] ? "NULL" : "'" + w.Enddate.ToString("yyyy-MM-dd") + "'";
-                            var endestring = w.Enddate.Year == new DateTime().Year || w.Enddate >= aktuellesHalbjahr[1] ? "NULL" : w.Enddate.ToString("dd.MM.");
-
-                            UpdateKursteilnehmer(
-                                w.KursNameUntis.Substring(0, 9) + "|" + w.Nachname.Substring(0, Math.Min(3, w.Nachname.Length)) + "," + w.Vorname.Substring(0, Math.Min(2, w.Vorname.Length)) + "|" + (at.Enddate <= DateTime.Now ? at.Enddate.ToString("dd.MM.") : "NULL") + "->" + endestring, 
-                                @"UPDATE ku_pj SET datum_2 = " + endestring + " WHERE ku_id = " + ku_id + " AND pj_id = " + w.Pj_Id + ";"
-                                );
-                        }
-                    }
+                    }                    
                 }
             }
         }
 
-        internal void Delete(Kursteilnehmers webuntiskursteilnehmers)
+        internal void Delete(Kursteilnehmers webuntiskursteilnehmers, List<int> zuLöschendeKurse)
         {
             UpdateKursteilnehmer("", "");
             UpdateKursteilnehmer("Zu löschende Kursteilnehmer:", "");
@@ -172,7 +182,9 @@ WHERE programm_nr = '" + aktSj + "'", connection);
 
             foreach (var a in this)
             {
-                if (!(from w in webuntiskursteilnehmers where w.Pj_Id == a.Pj_Id where w.KursNameUntis == a.KursNameUntis select w).Any())
+                // Alle Teilnehmer aus zu löschenden Kursen werden gelöscht.
+
+                if (!(from w in webuntiskursteilnehmers where w.Pj_Id == a.Pj_Id where w.KursNameUntis == a.KursNameUntis select w).Any() || zuLöschendeKurse.Contains(a.Ku_Id))
                 {
                     UpdateKursteilnehmer(a.KursNameUntis + "|" + a.Nachname + "," + a.Vorname, @"DELETE FROM ku_pj WHERE kupj_id = " + a.KuPj_Id + ";");
                 }

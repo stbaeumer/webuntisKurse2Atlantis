@@ -157,8 +157,10 @@ WHERE programm_nr = '" + aktSj + "' ORDER BY DBA.kurs.ku_id DESC", connection);
             }
         }
 
-        internal void Delete(Kurse webuntisKurse)
+        internal List<int> Delete(Kurse webuntisKurse)
         {
+            List<int> zuLöschende = new List<int>();
+
             try
             {
                 UpdateKurs("", "");
@@ -175,13 +177,16 @@ WHERE programm_nr = '" + aktSj + "' ORDER BY DBA.kurs.ku_id DESC", connection);
                         {
                             var dd = (from w in webuntisKurse where w.NameUntis.StartsWith(a.NameUntis) where w.Schuljahr == a.Schuljahr where w.Halbjahr == a.Halbjahr select w).FirstOrDefault();
                             UpdateKurs(a.NameUntis + " | " + a.Halbjahr + ".Hj", @"DELETE FROM kurs WHERE ku_id = " + a.Ku_Id + ";");
+                            zuLöschende.Add(a.Ku_Id);
                         }
                     }
                 }
+                return zuLöschende;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
+                return zuLöschende;
             }            
         }
 

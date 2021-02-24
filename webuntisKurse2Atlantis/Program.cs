@@ -60,19 +60,22 @@ namespace webuntisKurse2Atlantis
 
                 // Filtern
 
-                Console.WriteLine("Achtung, es wird ausschließlich auf Grund- und Leistungskurse in der gym. Oberstufe gefiltert.");
-                List<Kurs> wf = (from a in webuntisKurse where a.Art == "G" || a.Art == "L" select a).ToList();
+                Console.WriteLine("Achtung, es wird nicht auf Grund- und Leistungskurse in der gym. Oberstufe gefiltert.");
+                // List<Kurs> wf = (from a in webuntisKurse where a.Art == "G" || a.Art == "L" select a).ToList();
+                List<Kurs> wf = (from w in webuntisKurse 
+                                 where w.Jahrgang != "D022" && w.Jahrgang != "D023"
+                                 select w).ToList();
                 webuntisKurse = new Kurse();
                 webuntisKurse.AddRange(wf);
 
                 // CRUD
 
                 webuntisKurse.Add(atlantisKurse);
-                atlantisKurse.Delete(webuntisKurse);
+                var zulöschendeKurse = atlantisKurse.Delete(webuntisKurse);
 
-                webuntiskursteilnehmers.Add(atlantisKursteilnehmer, atlantisKurse, aktuellesHalbjahr);
-                webuntiskursteilnehmers.Update(atlantisKursteilnehmer, atlantisKurse, aktuellesHalbjahr);
-                atlantisKursteilnehmer.Delete(webuntiskursteilnehmers);
+                webuntiskursteilnehmers.Add(atlantisKursteilnehmer, atlantisKurse, aktuellesHalbjahr, zulöschendeKurse);
+                webuntiskursteilnehmers.Update(atlantisKursteilnehmer, atlantisKurse, aktuellesHalbjahr, zulöschendeKurse);
+                atlantisKursteilnehmer.Delete(webuntiskursteilnehmers, zulöschendeKurse);
 
                 ErzeugeSqlDatei(new List<string>() { studentgroupStudents, targetSql });
 
